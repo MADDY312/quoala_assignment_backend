@@ -1,3 +1,7 @@
+# Website links: 
+https://qoala-assignment-dce2b.firebaseapp.com/
+<br>https://qoala-assignment-dce2b.web.app/
+
 ## Note:
 **google_cloud.py** file is the python file that is deployed
 
