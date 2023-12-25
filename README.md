@@ -31,10 +31,20 @@ Backend:**Pythonanywhere**
             <br> Not used SpringBoot: I have done a lots and lots of coding in java and particularly in springboot framework, so my first choice for the restcontroller was spring boot and i integrated it too, but **problem came in deployment**,
             i planned to use elasticbeanstalk and after spending countless hours,i ended up with a pool of errors, therefore decided to reduce complexity and move on with python itsel and since we didnt had any extensive use of mongodb, i decided to integrate it with python itself, and it worked like a charm....
 
-**problems**
+**problems occured but resolved**
          <br> -major problems came in deployment
         <br>-Earlier was using github pages for react deployment, but it didnt work out, later i found out i was using <Router> and<Routes> so removed them but it didnt work out, so had to move to firebase, on it deployment was quite simple
-        <br>-used pythonanywhere, one major problem encountered was **using "pip" instead of "pip3.9"**, or whatever version required
+        <br>-used pythonanywhere, one major problem encountered was **using "pip" instead of "pip3.9"**, or whatever version of python one is using, these trivial problems took a lot of time.
+        <br> unique id assigned by mongo atlas cannot be parsed well in json, caused api related issues but ulltimately all fixed.
+        <br> And countless other problems while parsing the data , used various regex and sorting techniques, to retrieve data efficienlty
+
+# Features:
+ Recognizes, all relevant information from thai id card with high precision and gives back json response 
+ <br> Stores them in efficient and reliable database
+ <br> gives data of all the id-cards previously scanned using this webapp
+ <br> Searches the database and retrieves based on first name, lastname, and identification number
+ <br>used a simplistic and highly intutive UI/UX for easy and convenient use
+        
           
             
             
