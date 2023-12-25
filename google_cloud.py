@@ -1,31 +1,30 @@
 from google.cloud import vision
 import os
-import cv2
 import re
 from flask_cors import CORS
-import json
 from io import BytesIO
 import base64
 from PIL import Image
-import requests
 from flask import Flask,request, jsonify
+# from flask import Flask,request, jsonify
 from pymongo import MongoClient
 
-# Connect to MongoDB Atlas
-client = MongoClient("mongodb+srv://20ucc114:Vasu123@cluster0.dhfpn7l.mongodb.net/")
-db = client["people"]
-collection = db["person"]
 
 app = Flask(__name__)
 CORS(app)
+print("tudutudu")
 
+@app.route('/get')
+def hello_world():
 
+    return 'Hello from Flasktu naacj bhutni ke!'
 
 
 def remove_non_encodable_chars(input_str):
     # Filter out characters that cannot be encoded using 'utf-8'
     cleaned_str = ''.join(char for char in str(input_str) if isinstance(char, str) and ord(char) < 128)
     return cleaned_str
+
 def detect_text(path):
     """Detects text in the file."""
 
@@ -42,7 +41,7 @@ def detect_text(path):
 
     response = client.text_detection(image=image)
     # print(response)
-    
+
     texts = response.text_annotations
     # print("Texts:")
     texts=remove_non_encodable_chars(texts)
@@ -83,12 +82,22 @@ def main_module():
 
     # Set the path to your service account key file
     # key_path = 'cloudvisionkey.json'
+    # Connect to MongoDB Atlas
+    client = MongoClient("mongodb+srv://20ucc114:Vasu123@cluster0.dhfpn7l.mongodb.net/")
+    db = client["people"]
+    collection = db["person"]
 
-    os.environ['GOOGLE_APPLICATION_CREDENTIALS']=r'cloudvisionkey.json'
+    # app = Flask(__name__)
+    CORS(app, origins="https://qoala-assignment-dce2b.web.app")
+
+    key_path = '/home/litescanpy/mysite/cloudvisionkey.json'
+    os.environ['GOOGLE_APPLICATION_CREDENTIALS']=key_path
 # Specify the path to the image you want to analyze
     json_data = request.get_json()
     image_data = json_data['image']
     image_data=image_data.replace("data:image/jpeg;base64,","")
+    padding = '=' * (4 - len(image_data) % 4)
+    image_data += padding
     image = preprocess_image(image_data)
     image_path = 'new_im.jpg'
     image.save(image_path)
@@ -144,28 +153,83 @@ def main_module():
 	#  public String date_of_expiry;
     # identification_number="nil"
     user_data = {
-            "id":identification_number ,
-            "first_name": first_name,
-            "last_name": last_name,
-            "date_of_birth": dob,
-            "date_of_expiry": doe,
-            "date_of_issue": doi
+            "id":identification_number.strip() ,
+            "first_name": first_name.strip(),
+            "last_name": last_name.strip(),
+            "date_of_birth": dob.strip(),
+            "date_of_expiry": doe.strip(),
+            "date_of_issue": doi.strip()
         }
-    
+
     result = collection.insert_one(user_data)
-    print("User data inserted with ID:", result.inserted_id)
+    print("User data inserted with IDsss:", result.inserted_id)
+    # user_data["_id"] = str(result.inserted_id)
+    user_data.pop("_id", None)
     #sending data to the database restcontroller to be stored
     # api_url = 'http://localhost:8080/add/user'
     # # Making a POST API call using the requests library
     # response = requests.post(api_url, json=user_data)
     # this is sent back to the frontend for display purposes
-    return jsonify(user_data)
+    print("thakthak")
+    response=jsonify(user_data)
+    print("thakthak")
+    print(response)
+    return response
 
 
-@app.route('/alluser', methods=['POST'])
+@app.route('/search', methods=['POST'])
+def find_user():
+    CORS(app)
+    client = MongoClient("mongodb+srv://20ucc114:Vasu123@cluster0.dhfpn7l.mongodb.net/")
+    db = client["people"]
+    collection = db["person"]
+    json_data = request.get_json()
+    search_query = json_data.get('query')
+
+    # Check if the search query is provided
+    if not search_query:
+        return jsonify({"error": "Search query is required"}), 400
+
+    
+    # Search for the user by name or identification number
+    user = collection.find_one({
+        "$or": [
+            {"first_name": {"$regex": search_query, "$options": "i"}},
+            {"last_name": {"$regex": search_query, "$options": "i"}},
+            {"id": search_query}
+        ]
+    })
+
+    # If user not found, return an error response
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    user["_id"] = str(user["_id"])  # Convert ObjectId to string
+    user.pop("_id", None)  # Remove the _id field
+    # Return the found user data
+    return jsonify(user)
+
+
+@app.route('/alluser', methods=['GET'])
 def find_all_docs():
+    CORS(app)
+    client = MongoClient("mongodb+srv://20ucc114:Vasu123@cluster0.dhfpn7l.mongodb.net/")
+    db = client["people"]
+    collection = db["person"]
     all_documents = collection.find()
-    return jsonify(all_documents)
+    documents_list = []
+    for document in all_documents:
+        document["_id"] = str(document["_id"])  # Convert ObjectId to string
+        document.pop("_id", None)  # Remove the _id field
+        documents_list.append(document)
+    return jsonify(list(documents_list))
+
+
+
+
+
+
+
 
 if __name__ == '__main__':
     app.run(port=5000)    
