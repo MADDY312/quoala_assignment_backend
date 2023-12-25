@@ -45,7 +45,7 @@ Backend:**Pythonanywhere**
  <br> --Searches the database and retrieves based on first name, lastname, or identification number
  <br> --Delete user from the database
  <br>--used a simplistic and highly intutive UI/UX for easy and convenient use
-### Experience: Learnt a lot and building it filled with highs and lows. 
+### Experience: Learnt a lot and building it filled was with highs and lows, like a roller coaster ride
  
         
           
